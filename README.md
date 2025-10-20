@@ -32,7 +32,7 @@ pip install matplotlib numpy
 
 ```python
 import numpy as np
-from your_package import sline
+from Pyfigure import sline
 
 # 生成示例数据
 x = np.linspace(0, 10, 100)
@@ -57,7 +57,7 @@ sline(
 
 ```python
 import numpy as np
-from your_package import scatter
+from Pyfigure import scatter
 
 # 生成示例数据
 x = np.linspace(0, 5, 50)
@@ -80,7 +80,7 @@ scatter(
 
 ```python
 import numpy as np
-from your_package import mline
+from Pyfigure import mline
 
 # 生成示例数据
 x = np.linspace(0, 10, 100)
