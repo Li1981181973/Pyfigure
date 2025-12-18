@@ -37,13 +37,13 @@ def calculate_ticks(ticks_min: float, ticks_max: float, axis: str = 'x', count: 
             ticks.append(ticks_max)
         if type is not None and type == 'auto':
             start_tick = math.floor(ticks_min/step_len)*step_len
-            if abs(start_tick-ticks_min) >= 0.5* step_len:
-                ticks.append(start_tick-step_len*0.5)
+            # if abs(start_tick-ticks_min) >= 0.5* step_len:
+            #     ticks.append(start_tick-step_len*0.5)
             while start_tick < ticks_max:
                 ticks.append(start_tick)
                 start_tick += step_len
-            if abs(ticks_max-ticks[-1]) >= 0.5* step_len:
-                ticks.append(start_tick-step_len*0.5)
+            # if abs(ticks_max-ticks[-1]) >= 0.5* step_len:
+            #     ticks.append(start_tick-step_len*0.5)
     if axis == 'y':
         if type is not None:
             #对称
@@ -92,6 +92,9 @@ def calculate_limits(data,region_ratio: float =0.8,_min= None,_max =None)->tuple
 
 def power_scale(a:float)->tuple:
     power = 0
+    if a < 0:
+        a = -a
+        power = 1
     if a == 0:
         return 0,1
     while a > 1.0:
@@ -181,6 +184,7 @@ def remove_mask_ticks(ticks:list,ax:Axes,fig:Figure,type ='x'):
             font_size *=0.8
         first_tick_len = first_tick_factor*bbox.width
         last_tick_len = last_tick_factor*bbox.width
+        
         first_tick_digit = (power_scale(ticks[1])[1]+power_scale(ticks[0])[1])/2*font_size
         last_tick_digit = (power_scale(ticks[-1])[1]+power_scale(ticks[-2])[1])/2*font_size
         if type == 'y':

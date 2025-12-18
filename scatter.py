@@ -1,7 +1,7 @@
 from matplotlib import ticker
 import matplotlib.pyplot as plt
 import numpy as np
-import figure_tools.handle as handle
+from . import handle
 
 def figure_scatter(x,*y_data,**options):
     if y_data is None:
@@ -131,7 +131,7 @@ def figure_scatter(x,*y_data,**options):
     plt.tight_layout()
 
     #plt.show()
-    if output and output.strip():
+    if output:
         fig.savefig(output)
     plt.close()
 

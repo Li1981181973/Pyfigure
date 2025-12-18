@@ -163,6 +163,6 @@ def mline(x,*data,**options):
                                 style=options.pop('style','--'),width=options.pop('width',0.5),
                                 txt = options.pop('txt',''))
     plt.tight_layout()
-    if outputPath and outputPath.strip():
+    if outputPath:
         fig.savefig(outputPath)
     plt.close()

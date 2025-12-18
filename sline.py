@@ -3,13 +3,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from .handle import *
 
-def scatter(x,*y_data,**options):
+def sline(x,*y_data,**options):
     if y_data is None:
         return
-    x_name = options.get('xName','x')
-    y_name = options.get('yName','y')
-    x_unit = options.get('xUnit','')
-    y_unit = options.get('yUnit','')
+    x_name = options.get('xname','x')
+    y_name = options.get('yname','y')
+    x_unit = options.get('xunit','')
+    y_unit = options.get('yunit','')
 
     xtick: dict = options.get('xtick',{})
     ytick: dict = options.get('ytick',{})
@@ -36,10 +36,11 @@ def scatter(x,*y_data,**options):
     output = options.pop('outputPath','')
     colors = options.pop('colors',[])
     markers = options.pop('markers',[])
+    styles = options.pop('styles',[])
     legend: dict = options.pop('legend',{})
     grid_on = options.get('grid_on',False)
-    x_lines : list = options.pop('xLines',[])
-    y_lines : list = options.pop('yLines',[])
+    x_lines : list = options.pop('xlines',[])
+    y_lines : list = options.pop('ylines',[])
 
     plt.rcParams.update(rc)
     legend_labeals = legend.get('labels',[])
@@ -48,9 +49,12 @@ def scatter(x,*y_data,**options):
     ymax = -ymin
     line_idx = 0
     for data in y_data:
-        marker_type = 'o'
-        color_type = 'k'
+        marker_type = None
+        color_type = None
         label_name = None
+        style = '-'
+        if line_idx < len(styles):
+            style = styles[line_idx]
         if line_idx < len(markers):
             marker_type = markers[line_idx]
         if line_idx < len(colors):
@@ -59,10 +63,11 @@ def scatter(x,*y_data,**options):
             label_name = legend_labeals[line_idx]
         if data is None:
             break
-        data = np.array(data)
+        data = np.array(data).astype(float)
         if data.ndim == 1:
             ymin,ymax = calculate_limits(data,ytick_region,ymin,ymax)
-            ax.scatter(x,data,s = 16,marker=marker_type,facecolors = 'none',edgecolor = color_type,label = label_name)
+            ax.plot(x,data,marker=marker_type,markersize=10,linewidth=1,
+                           color = color_type,label = label_name,linestyle=style)
             line_idx+=1
         else:
             for i in range(data.shape[1]):
@@ -73,8 +78,8 @@ def scatter(x,*y_data,**options):
                 if line_idx < len(legend_labeals):
                     label_name = legend_labeals[line_idx]
                 ymin,ymax = calculate_limits(data[:,i],ytick_region,ymin,ymax)
-                ax.scatter(x,data[:,i],s = 16,marker=marker_type,facecolors = 'none',
-                           edgecolor = color_type,label = label_name)
+                ax.plot(x,data[:,i],marker=marker_type,markersize=10,linewidth=1,
+                           color = color_type,label = label_name,linestyle=style)
                 line_idx+=1
         
     #绘图完成
@@ -131,7 +136,7 @@ def scatter(x,*y_data,**options):
     plt.tight_layout()
 
     #plt.show()
-    if output and output.strip():
+    if output:
         fig.savefig(output)
     plt.close()
 
