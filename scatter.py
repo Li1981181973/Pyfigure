@@ -1,5 +1,6 @@
 from matplotlib import ticker
 import matplotlib.pyplot as plt
+from typing import List
 import numpy as np
 from . import handle
 
@@ -79,20 +80,20 @@ def figure_scatter(x,*y_data,**options):
         
     #绘图完成
     if xtick_type == 'manual':
-        xTicks: list = xtick.get('ticks',[])
+        xticks: List[float] = xtick.get('ticks',[])
     else:
-        xTicks = handle.calculate_ticks(min(x),max(x),'x',xtick_count,xtick_type)
-        xTicks,x_step_len = handle.remove_mask_ticks(xTicks,ax=ax,fig= fig,type='x')
+        xticks = handle.calculate_ticks(min(x),max(x),'x',xtick_count,xtick_type)
+        xticks,x_step_len = handle.remove_mask_ticks(xticks,ax=ax,fig= fig,type='x')
     if ytick_type =='manual':
-        yTicks: list = ytick.get('ticks',[])
+        yticks: List[float] = ytick.get('ticks',[])
     else:
-        yTicks = handle.calculate_ticks(ymin,ymax,'y',ytick_count,ytick_type)
-        yTicks,y_step_len = handle.remove_mask_ticks(yTicks,ax=ax,fig= fig,type='y')
-    ax.set_ylim([yTicks[0],yTicks[-1]])
+        yticks = handle.calculate_ticks(ymin,ymax,'y',ytick_count,ytick_type)
+        yticks,y_step_len = handle.remove_mask_ticks(yticks,ax=ax,fig= fig,type='y')
+    ax.set_ylim(yticks[0],yticks[-1])
     
-    ax.set_yticks(yTicks)
-    ax.set_xticks(xTicks)
-    ax.set_xlim([xTicks[0] ,xTicks[-1]])
+    ax.set_yticks(yticks)
+    ax.set_xticks(xticks)
+    ax.set_xlim(xticks[0] ,xticks[-1])
     if xtick_digit >= 0:
         ax.xaxis.set_major_formatter(ticker.FormatStrFormatter(f'%.{xtick_digit}f'))
     if ytick_digit >= 0:
@@ -113,7 +114,7 @@ def figure_scatter(x,*y_data,**options):
         legend_ncols = legend.get('ncols',1)
         ax.legend(loc='upper right',framealpha= 1.0,frameon = True,ncol = legend_ncols,
                   fancybox = False,edgecolor = 'k' ,borderpad=0.2,
-                  prop={'size' :handle.rc['font.size']-1.5 ,'family' :'SimSun'}).get_frame().set_linewidth(0.5)
+                  prop={'size' :int(handle.rc['font.size']*0.8) ,'family' :'SimSun'}).get_frame().set_linewidth(0.5)
     for y_line in y_lines:
         value = y_line.pop('value')
         if value:
@@ -132,6 +133,6 @@ def figure_scatter(x,*y_data,**options):
 
     #plt.show()
     if output:
-        fig.savefig(output)
+        fig.savefig(output,dpi= handle.rc['figure.dpi'],bbox_inches='tight',pad_inches=0.01)
     plt.close()
 

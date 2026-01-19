@@ -1,6 +1,7 @@
 from matplotlib import ticker
 import matplotlib.pyplot as plt
 import numpy as np
+from typing import List
 from .handle import *
 
 def sline(x,*y_data,**options):
@@ -37,6 +38,7 @@ def sline(x,*y_data,**options):
     colors = options.pop('colors',[])
     markers = options.pop('markers',[])
     styles = options.pop('styles',[])
+    linewidth = options.pop('linewidth',0.5)
     legend: dict = options.pop('legend',{})
     grid_on = options.get('grid_on',False)
     x_lines : list = options.pop('xlines',[])
@@ -44,6 +46,7 @@ def sline(x,*y_data,**options):
 
     plt.rcParams.update(rc)
     legend_labeals = legend.get('labels',[])
+    
     fig, ax = plt.subplots()
     ymin = np.inf
     ymax = -ymin
@@ -66,7 +69,7 @@ def sline(x,*y_data,**options):
         data = np.array(data).astype(float)
         if data.ndim == 1:
             ymin,ymax = calculate_limits(data,ytick_region,ymin,ymax)
-            ax.plot(x,data,marker=marker_type,markersize=10,linewidth=1,
+            ax.plot(x,data,marker=marker_type,markersize=10,linewidth=linewidth,
                            color = color_type,label = label_name,linestyle=style)
             line_idx+=1
         else:
@@ -78,26 +81,28 @@ def sline(x,*y_data,**options):
                 if line_idx < len(legend_labeals):
                     label_name = legend_labeals[line_idx]
                 ymin,ymax = calculate_limits(data[:,i],ytick_region,ymin,ymax)
-                ax.plot(x,data[:,i],marker=marker_type,markersize=10,linewidth=1,
+                ax.plot(x,data[:,i],marker=marker_type,markersize=10,linewidth=linewidth,
                            color = color_type,label = label_name,linestyle=style)
                 line_idx+=1
         
     #绘图完成
     if xtick_type == 'manual':
-        xTicks: list = xtick.get('ticks',[])
+        xticks: List[float] = xtick.get('ticks',[])
+        x_step_len = (xticks[-1]-xticks[0])/(len(xticks)-1)
     else:
-        xTicks = calculate_ticks(min(x),max(x),'x',xtick_count,xtick_type)
-        xTicks,x_step_len = remove_mask_ticks(xTicks,ax=ax,fig= fig,type='x')
+        xticks = calculate_ticks(min(x),max(x),'x',xtick_count,xtick_type)
+        xticks,x_step_len = remove_mask_ticks(xticks,ax=ax,fig= fig,type='x')
     if ytick_type =='manual':
-        yTicks: list = ytick.get('ticks',[])
+        yticks: List[float] = ytick.get('ticks',[])
+        y_step_len = (yticks[-1]-yticks[0])/(len(yticks)-1)
     else:
-        yTicks = calculate_ticks(ymin,ymax,'y',ytick_count,ytick_type)
-        yTicks,y_step_len = remove_mask_ticks(yTicks,ax=ax,fig= fig,type='y')
-    ax.set_ylim([yTicks[0],yTicks[-1]])
+        yticks = calculate_ticks(ymin,ymax,'y',ytick_count,ytick_type)
+        yticks,y_step_len = remove_mask_ticks(yticks,ax=ax,fig= fig,type='y')
+    ax.set_ylim(yticks[0],yticks[-1])
     
-    ax.set_yticks(yTicks)
-    ax.set_xticks(xTicks)
-    ax.set_xlim([xTicks[0] ,xTicks[-1]])
+    ax.set_yticks(yticks)
+    ax.set_xticks(xticks)
+    ax.set_xlim(xticks[0] ,xticks[-1])
     if xtick_digit >= 0:
         ax.xaxis.set_major_formatter(ticker.FormatStrFormatter(f'%.{xtick_digit}f'))
     if ytick_digit >= 0:
@@ -116,9 +121,10 @@ def sline(x,*y_data,**options):
         ax.set_ylabel(fr'{y_name}',fontname='SimSun')
     if legend:
         legend_ncols = legend.get('ncols',1)
-        ax.legend(loc='upper right',framealpha= 1.0,frameon = True,ncol = legend_ncols,
+        legend_loc = legend.pop('loc','best')
+        ax.legend(loc=legend_loc,framealpha= 1.0,frameon = True,ncol = legend_ncols,
                   fancybox = False,edgecolor = 'k' ,borderpad=0.2,
-                  prop={'size' :rc['font.size']-1.5 ,'family' :'SimSun'}).get_frame().set_linewidth(0.5)
+                  prop={'size' :int(rc['font.size']*0.8) ,'family' :'SimSun'}).get_frame().set_linewidth(0.5)
     for y_line in y_lines:
         value = y_line.pop('value')
         if value:
@@ -137,6 +143,6 @@ def sline(x,*y_data,**options):
 
     #plt.show()
     if output:
-        fig.savefig(output)
+        fig.savefig(output,dpi=rc['figure.dpi'],bbox_inches='tight',pad_inches=0.01)
     plt.close()
 

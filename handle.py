@@ -2,7 +2,7 @@ import math
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-
+from typing import List
 rc = {
         "font.family":'serif',
         "mathtext.fontset":'stix',
@@ -20,7 +20,7 @@ rc = {
       }
 preferred_step = [1, 2, 3, 4, 5] # 优先使用的步长前缀列表
 #计算轴的标签
-def calculate_ticks(ticks_min: float, ticks_max: float, axis: str = 'x', count: int = 5,type:str = ''):
+def calculate_ticks(ticks_min: float, ticks_max: float, axis: str = 'x', count: int = 5,type:str = '')->List[float]:
     
     step_len = abs((ticks_max - ticks_min) / float(count - 1))
     step_len, power = power_scale(step_len)
@@ -48,15 +48,19 @@ def calculate_ticks(ticks_min: float, ticks_max: float, axis: str = 'x', count: 
         if type is not None:
             #对称
             if type == 'sys':
-                if end_tick * start_tick > 0:
+                if ticks_max * ticks_min > 0:
                     type = 'auto'
                 else:
-                    end_tick = max(abs(start_tick),abs(end_tick))*start_tick/abs(start_tick)
-                    start_tick = - end_tick
-                    while start_tick<end_tick:
+                    end_tick = math.ceil(max(abs(ticks_min),abs(ticks_max))/step_len)*step_len
+                    start_tick = 0
+                    while start_tick <= end_tick:
                         ticks.append(start_tick)
-                        start_tick+=step_len
-                    ticks.append(end_tick)
+                        start_tick += step_len
+                    start_tick = -end_tick
+                    while start_tick < 0:
+                        ticks.append(start_tick)
+                        start_tick += step_len
+                    ticks.sort()
             if type == 'terminal':
                 start_tick = math.ceil(ticks_min/step_len)*step_len
                 ticks.append(ticks_min)
@@ -74,7 +78,7 @@ def calculate_ticks(ticks_min: float, ticks_max: float, axis: str = 'x', count: 
             
     return ticks
 #考虑数据绘制区域的边界计算方法
-def calculate_limits(data,region_ratio: float =0.8,_min= None,_max =None)->tuple:
+def calculate_limits(data,region_ratio: float =0.8,_min= None,_max =None)->tuple[float,float]:
     min_data = np.min(data)
     max_data = np.max(data)
     #当值为0时，调整边界
@@ -90,7 +94,7 @@ def calculate_limits(data,region_ratio: float =0.8,_min= None,_max =None)->tuple
         min_t = _min
     return min_t,max_t
 
-def power_scale(a:float)->tuple:
+def power_scale(a:float)->tuple[float,int]:
     power = 0
     if a < 0:
         a = -a

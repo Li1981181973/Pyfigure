@@ -17,9 +17,10 @@ def mline(x,*data,**options):
     legend = options_tmp['legend']
     legend_label = legend.get('labels',[])
     legend_ncol = legend.get('ncols',1)
+    legend_loc = legend.get('loc','lower center')
     xlines = options_tmp['xlines']
     ylines = options_tmp['ylines']
-    outputPath = options_tmp.get('outputPath' ,'')
+    output = options_tmp.get('outputPath' ,'')
     if not xtick_type in ['terminal','auto','manual']:
         xtick_type = 'terminal'
     if xtick_type == 'manual' and len(xtick.get('ticks',[])) == 0:
@@ -46,6 +47,7 @@ def mline(x,*data,**options):
         
         y_name_cur = ynames[level_idx] if level_idx <len(ynames) else 'y_axis'
         y_unit_cur = yunits[level_idx] if level_idx <len(yunits) else ''
+        ytick_cur = yticks[level_idx] if level_idx < len(yticks) else {}
         if y_unit_cur == '':
             y_label_cur = y_name_cur
         else:
@@ -59,7 +61,7 @@ def mline(x,*data,**options):
             line_width = options_tmp['widths'][line_idx] if line_idx < len(options_tmp['widths']) else 1
             line_marker = options_tmp['markers'][line_idx] if line_idx < len(options_tmp['markers']) else None
             line_lagend = legend_label[line_idx] if line_idx < len(legend_label) else None
-            ytick_cur = yticks[level_idx] if level_idx < len(yticks) else {}
+            
             if len(data_item) != len(x):
                 raise ValueError('x and data must be the same length')
             
@@ -144,9 +146,9 @@ def mline(x,*data,**options):
         if options_tmp['grid_on']:
             plt.grid(axis = 'both',linestyle = '-',which='major',linewidth = 0.5,color = 'lightgray')
     if len(legend_label) > 0:
-        fig.legend(prop={'family': "SimSun",'size':rc['font.size']-2},
-                       framealpha= 1.0,frameon = True,ncol = legend_ncol,loc = 'upper center',
-                    fancybox = False,edgecolor = 'k' ,bbox_to_anchor=(0.5, 1),borderpad=0.2,
+        fig.legend(prop={'family': "SimSun",'size':int(rc['font.size']*0.8)},
+                       framealpha= 1.0,frameon = True,ncol = legend_ncol,loc = legend_loc,
+                    fancybox = False,edgecolor = 'k' ,bbox_to_anchor=(0.5, 0.4),borderpad=0.1,
                     bbox_transform=ax_list[0].transAxes).get_frame().set_linewidth(0.5)
     for op in xlines:
         ax_index = options.get('level',0)
@@ -163,6 +165,6 @@ def mline(x,*data,**options):
                                 style=options.pop('style','--'),width=options.pop('width',0.5),
                                 txt = options.pop('txt',''))
     plt.tight_layout()
-    if outputPath:
-        fig.savefig(outputPath)
+    if output:
+        fig.savefig(output,dpi= rc['figure.dpi'],bbox_inches='tight',pad_inches=0.01)
     plt.close()
